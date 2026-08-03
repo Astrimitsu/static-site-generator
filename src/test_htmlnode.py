@@ -19,6 +19,12 @@ class TestHTMLNode(unittest.TestCase):
         self.assertRaises(NotImplementedError, self.htmlnode_b.to_html)
 
     def test_props_to_html(self) -> None:
-        self.assertEqual(self.htmlnode_a.props_to_html(), ' stuff="things" foxes="boxes" fox="snacks"')
-        self.assertEqual(self.htmlnode_b.props_to_html(), ' foo="bar" dog="cat" foxes="are for petting"')
-        self.assertEqual(self.htmlnode_empty.props_to_html(), '')
+        self.assertEqual(
+            self.htmlnode_a.props_to_html(),
+            ' stuff="things" foxes="boxes" fox="snacks"',
+        )
+        self.assertEqual(
+            self.htmlnode_b.props_to_html(),
+            ' foo="bar" dog="cat" foxes="are for petting"',
+        )
+        self.assertEqual(self.htmlnode_empty.props_to_html(), "")
