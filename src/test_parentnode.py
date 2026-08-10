@@ -35,11 +35,20 @@ class TestParentNode(unittest.TestCase):
             None,
         )
         self.parentnode_one_child = ParentNode("p", [self.leafnode_plain], None)
-        self.parentnode_nested_children = ParentNode("div", [self.parentnode_one_child], None)
-        self.parentnode_multiple_children = ParentNode("b", [self.leafnode_plain, self.leafnode_three_props], None)
+        self.parentnode_nested_children = ParentNode(
+            "div", [self.parentnode_one_child], None
+        )
+        self.parentnode_multiple_children = ParentNode(
+            "b", [self.leafnode_plain, self.leafnode_three_props], None
+        )
 
     def test_to_html(self):
         self.assertRaises(ValueError, self.parentnode_no_children.to_html)
         self.assertEqual(self.parentnode_one_child.to_html(), "<p>fox</p>")
-        self.assertEqual(self.parentnode_multiple_children.to_html(), '<b>fox<a href="https://foxpetters.net/petem" target="_blank" id="fox-link">Pettable Foxes Here</a></b>')
-        self.assertEqual(self.parentnode_nested_children.to_html(), "<div><p>fox</p></div>")
+        self.assertEqual(
+            self.parentnode_multiple_children.to_html(),
+            '<b>fox<a href="https://foxpetters.net/petem" target="_blank" id="fox-link">Pettable Foxes Here</a></b>',
+        )
+        self.assertEqual(
+            self.parentnode_nested_children.to_html(), "<div><p>fox</p></div>"
+        )
