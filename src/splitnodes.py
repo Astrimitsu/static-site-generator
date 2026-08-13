@@ -8,7 +8,7 @@ def split_nodes_delimiter(
 ) -> list[TextNode]:
     processed_nodes: list[TextNode] = []
     for node in input_nodes:
-        if node.text_type == TextType.PLAIN_TEXT:
+        if node.text_type is TextType.PLAIN_TEXT:
             processed_nodes.append(node)
             continue
         split_node = node.text.split(delimiter)
@@ -31,3 +31,16 @@ def extract_markdown_images(text: str) -> list[tuple[str, str]]:
 
 def extract_markdown_links(text: str) -> list[tuple[str, str]]:
     return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+
+def split_nodes_image(input_nodes: list[TextNode]) -> list[TextNode]:
+    processed_nodes: list[TextNode] = []
+    for node in input_nodes:
+        images = extract_markdown_images(node.text)
+        if not images:
+            processed_nodes.append(node)
+            continue
+        for image in images:
+            
+
+    return processed_nodes
