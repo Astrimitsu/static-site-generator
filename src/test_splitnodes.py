@@ -11,22 +11,22 @@ from textnode import TextNode, TextType
 class TestSplitNodes(unittest.TestCase):
     def setUp(self) -> None:
         self.textnode_bold_one_instance = TextNode(
-            "this is __bold__ text", TextType.BOLD_TEXT
+            "this is __bold__ text", TextType.PLAIN_TEXT
         )
         self.textnode_italic_one_instance = TextNode(
-            "this is *italic* text", TextType.ITALIC_TEXT
+            "this is *italic* text", TextType.PLAIN_TEXT
         )
         self.textnode_bold_two_instances = TextNode(
-            "this is __bold__ text __with two instances__", TextType.BOLD_TEXT
+            "this is __bold__ text __with two instances__", TextType.PLAIN_TEXT
         )
         self.textnode_missing_terminator = TextNode(
-            "this is a `malformed code block", TextType.CODE_TEXT
+            "this is a `malformed code block", TextType.PLAIN_TEXT
         )
         self.textnode_starting_as_bold = TextNode(
-            "__bold text__ immediately", TextType.BOLD_TEXT
+            "__bold text__ immediately", TextType.PLAIN_TEXT
         )
         self.textnode_missing_terminator_one_instance = TextNode(
-            "this is a `code block` with `one missing terminator", TextType.CODE_TEXT
+            "this is a `code block` with `one missing terminator", TextType.PLAIN_TEXT
         )
         self.textnode_plaintext = TextNode("hello i am plain text", TextType.PLAIN_TEXT)
 
@@ -100,7 +100,8 @@ class TestSplitNodes(unittest.TestCase):
         )
 
 
-class TestExtractImageLink(unittest.TestCase):
+class TestExtractImageLinkTestItems(unittest.TestCase):
+
     def setUp(self) -> None:
         self.text1 = (
             "ahhhh this is test text test test and testing that __bold text and__ ![some link alt text here](fobs.png) wwaoooh foxes are orange"
@@ -111,11 +112,10 @@ class TestExtractImageLink(unittest.TestCase):
             "[foxlink1](http://fox.com/foxlink1)[foxlink2](http://fox.com/foxlink2)[foxlink3](http://fox.com/foxlink3)"
         )
 
-    def test_extract_image_link(self):
-        self.assertEqual(
-            extract_markdown_links(self.text1),
-            [("linkerino here for realsies", "http://coollinknotvirus.ru")],
-        )
+
+class TestExtractImage(TestExtractImageLinkTestItems):
+
+    def test_extract_image(self):
         self.assertEqual(
             extract_markdown_images(self.text1),
             [("some link alt text here", "fobs.png")],
@@ -128,6 +128,14 @@ class TestExtractImageLink(unittest.TestCase):
                 ("foxpicture3", "foxpicture3.png"),
             ],
         )
+
+class TestExtractLink(TestExtractImageLinkTestItems):
+    def test_extract_link(self):
+        self.assertEqual(
+            extract_markdown_links(self.text1),
+            [("linkerino here for realsies", "http://coollinknotvirus.ru")],
+        )
+
         self.assertEqual(
             extract_markdown_links(self.text2),
             [
