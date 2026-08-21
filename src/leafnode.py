@@ -12,7 +12,6 @@ class LeafNode(HTMLNode):
             raise ValueError
         if not self.tag:
             return self.value
-
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
 
     def __eq__(self, other: object):

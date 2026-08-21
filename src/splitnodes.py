@@ -57,3 +57,43 @@ def split_nodes_image(input_nodes: list[TextNode]) -> list[TextNode]:
             processed_nodes.append(TextNode(rest, TextType.PLAIN_TEXT))
 
     return processed_nodes
+
+
+def split_nodes_link(input_nodes: list[TextNode]) -> list[TextNode]:
+    processed_nodes: list[TextNode] = []
+    for node in input_nodes:
+        if node.text_type is not TextType.PLAIN_TEXT:
+            processed_nodes.append(node)
+            continue
+        links = extract_markdown_links(node.text)
+        if not links:
+            processed_nodes.append(node)
+            continue
+
+        text = node.text
+        rest = ""
+        for link in links:
+            link_text, url = link
+            current, rest = text.split(f"[{link_text}]({url})", 1)
+            if current:
+                processed_nodes.append(TextNode(current, TextType.PLAIN_TEXT))
+            processed_nodes.append(TextNode(link_text, TextType.LINK, url))
+            text = rest
+        if rest:
+            processed_nodes.append(TextNode(rest, TextType.PLAIN_TEXT))
+
+    return processed_nodes
+
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    nodes = [TextNode(text, TextType.PLAIN_TEXT)]
+    delimiters = [
+        ("__", TextType.BOLD_TEXT),
+        ("*", TextType.ITALIC_TEXT),
+        ("`", TextType.CODE_TEXT),
+    ]
+    for delimiter, text_type in delimiters:
+        nodes = split_nodes_delimiter(nodes, delimiter, text_type)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes

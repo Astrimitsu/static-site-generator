@@ -48,7 +48,9 @@ class TestTextNode(unittest.TestCase):
         self.assertNotEqual(self.textnode_plain, self.textnode_plain_with_link)
 
     def test_repr(self):
-        self.assertEqual(repr(self.textnode_plain), "TextNode(Foxes, TextType.PLAIN_TEXT, None)")
+        self.assertEqual(
+            repr(self.textnode_plain), "TextNode(Foxes, TextType.PLAIN_TEXT, None)"
+        )
         self.assertEqual(
             repr(self.textnode_plain_with_link),
             "TextNode(Foxes in Boxes, TextType.PLAIN_TEXT, http://foxesinboxes.com)",
