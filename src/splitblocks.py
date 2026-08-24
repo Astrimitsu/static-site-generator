@@ -1,5 +1,4 @@
 import re
-
 from enum import Enum
 
 
@@ -14,6 +13,7 @@ class BlockType(Enum):
 
 def block_to_block_type(block: str) -> BlockType:
     regex_header = r"^#{1,6} .+"
+    regex_code_start = r"^`{3}(?!`)"
     split_block = block.splitlines()
 
     def lines_startswith(markdown: str) -> bool:
@@ -21,20 +21,22 @@ def block_to_block_type(block: str) -> BlockType:
 
     if re.match(regex_header, block):
         return BlockType.HEADING
-    if split_block[0].startswith("```") and split_block[-1].endswith("```") and len(split_block) >= 3:
+    if (
+        re.match(regex_code_start, split_block[0])
+        and split_block[-1] == "```"
+        and len(split_block) >= 3
+    ):
         return BlockType.CODE
     if block.startswith(">") and lines_startswith(">"):
         return BlockType.QUOTE
     if block.startswith("- ") and lines_startswith("- "):
         return BlockType.UNORDERED_LIST
-    if block[:3] == "1. ":
-        list_number = 2
-        is_numbered_list = True
-        for line in split_block[1:]:
-            if not line.startswith(f"{list_number}. "):
-                is_numbered_list = False
-                break
-            list_number += 1
+    if block.startswith("1. "):
+        list_number = 0
+        is_numbered_list = all(
+            line.startswith(f"{(list_number := list_number + 1)}. ")
+            for line in split_block
+        )
         if is_numbered_list:
             return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
