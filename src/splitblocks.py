@@ -2,6 +2,7 @@ import re
 from enum import Enum
 from htmlnode import HTMLNode
 
+
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
     HEADING = "heading"
@@ -43,7 +44,37 @@ def markdown_to_blocks(markdown: str) -> list[str]:
 
 
 def markdown_to_html_node(markdown: str) -> HTMLNode:
-    parent_node = HTMLNode()
-    parent_node.children = []
+
+    def count_heading_tag(block: str) -> int:
+        count = 0
+        for char in block:
+            if char == "#":
+                count += 1
+            else:
+                break
+        return count
+
+    def get_html_tag_from_blocktype(blocktype: BlockType) -> str:
+        match block_type:
+            case BlockType.PARAGRAPH:
+                return "p"
+            case BlockType.HEADING:
+                return f"h{count_heading_tag(block)}"
+            case BlockType.CODE:
+                return "pre "
+            case BlockType.QUOTE:
+                return "blockquote"
+            case BlockType.UNORDERED_LIST:
+                return "ul"
+            case BlockType.ORDERED_LIST:
+                return "ol"
+            case _:
+                raise ValueError(f"Invalid Block type: {repr(blocktype)}")
+
+    children = []
     for block in markdown_to_blocks(markdown):
         block_type = block_to_block_type(block)
+        tag = get_html_tag_from_blocktype(block_type)
+        if BlockType is BlockType.CODE:
+            children.append(HTMLNode(tag, None, [HTMLNode("code", block)]))
+        else:
