@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-
+from htmlnode import HTMLNode
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -12,33 +12,25 @@ class BlockType(Enum):
 
 
 def block_to_block_type(block: str) -> BlockType:
+    if not block:
+        return BlockType.PARAGRAPH
+
     regex_header = r"^#{1,6} .+"
-    regex_code_start = r"^`{3}(?!`)"
     split_block = block.splitlines()
 
-    def lines_startswith(markdown: str) -> bool:
+    def lines_start_with(markdown: str) -> bool:
         return all(line.startswith(markdown) for line in split_block)
 
     if re.match(regex_header, block):
         return BlockType.HEADING
-    if (
-        re.match(regex_code_start, split_block[0])
-        and split_block[-1] == "```"
-        and len(split_block) >= 3
-    ):
+    if split_block[0] == "```" and split_block[-1] == "```" and len(split_block) >= 3:
         return BlockType.CODE
-    if block.startswith(">") and lines_startswith(">"):
+    if lines_start_with(">"):
         return BlockType.QUOTE
-    if block.startswith("- ") and lines_startswith("- "):
+    if lines_start_with("- "):
         return BlockType.UNORDERED_LIST
-    if block.startswith("1. "):
-        list_number = 0
-        is_numbered_list = all(
-            line.startswith(f"{(list_number := list_number + 1)}. ")
-            for line in split_block
-        )
-        if is_numbered_list:
-            return BlockType.ORDERED_LIST
+    if all(line.startswith(f"{i}. ") for i, line in enumerate(split_block, 1)):
+        return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
 
 
@@ -48,3 +40,10 @@ def markdown_to_blocks(markdown: str) -> list[str]:
         for stripped_block in [block.strip() for block in markdown.split("\n\n")]
         if stripped_block
     ]
+
+
+def markdown_to_html_node(markdown: str) -> HTMLNode:
+    parent_node = HTMLNode()
+    parent_node.children = []
+    for block in markdown_to_blocks(markdown):
+        block_type = block_to_block_type(block)
