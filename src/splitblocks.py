@@ -1,6 +1,9 @@
 import re
 from enum import Enum
-from htmlnode import HTMLNode
+from parentnode import ParentNode
+from leafnode import LeafNode
+from textnode import TextNode, text_node_to_html_node
+from splitnodes import text_to_textnodes
 
 
 class BlockType(Enum):
@@ -42,8 +45,11 @@ def markdown_to_blocks(markdown: str) -> list[str]:
         if stripped_block
     ]
 
+def process_paragraph(block: str) -> ParentNode:
+    nodes = text_to_textnodes(block.replace("\n", " "))
+    return ParentNode("p", [text_node_to_html_node(node) for node in nodes])
 
-def markdown_to_html_node(markdown: str) -> HTMLNode:
+def markdown_to_html_node(markdown: str) -> ParentNode:
 
     def count_heading_tag(block: str) -> int:
         count = 0
@@ -54,27 +60,11 @@ def markdown_to_html_node(markdown: str) -> HTMLNode:
                 break
         return count
 
-    def get_html_tag_from_blocktype(blocktype: BlockType) -> str:
-        match block_type:
-            case BlockType.PARAGRAPH:
-                return "p"
-            case BlockType.HEADING:
-                return f"h{count_heading_tag(block)}"
-            case BlockType.CODE:
-                return "pre "
-            case BlockType.QUOTE:
-                return "blockquote"
-            case BlockType.UNORDERED_LIST:
-                return "ul"
-            case BlockType.ORDERED_LIST:
-                return "ol"
-            case _:
-                raise ValueError(f"Invalid Block type: {repr(blocktype)}")
-
     children = []
     for block in markdown_to_blocks(markdown):
         block_type = block_to_block_type(block)
-        tag = get_html_tag_from_blocktype(block_type)
-        if BlockType is BlockType.CODE:
-            children.append(HTMLNode(tag, None, [HTMLNode("code", block)]))
-        else:
+        if block_type is BlockType.CODE:
+            children.append(ParentNode("pre", [LeafNode("code", block)]))
+            continue
+        if block_type is BlockType.PARAGRAPH:
+            children.append(process_paragraph(block))
