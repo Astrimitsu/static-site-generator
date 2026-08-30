@@ -45,9 +45,18 @@ def markdown_to_blocks(markdown: str) -> list[str]:
         if stripped_block
     ]
 
+
 def process_paragraph(block: str) -> ParentNode:
     nodes = text_to_textnodes(block.replace("\n", " "))
     return ParentNode("p", [text_node_to_html_node(node) for node in nodes])
+
+
+def process_quote(block: str) -> ParentNode:
+    nodes = text_to_textnodes(
+        " ".join([line.replace(">", "", 1).lstrip() for line in block.split("\n")])
+    )
+    return ParentNode("blockquote", [text_node_to_html_node(node) for node in nodes])
+
 
 def markdown_to_html_node(markdown: str) -> ParentNode:
 
@@ -63,8 +72,12 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
     children = []
     for block in markdown_to_blocks(markdown):
         block_type = block_to_block_type(block)
-        if block_type is BlockType.CODE:
-            children.append(ParentNode("pre", [LeafNode("code", block)]))
-            continue
-        if block_type is BlockType.PARAGRAPH:
-            children.append(process_paragraph(block))
+        match block_type:
+            case BlockType.CODE:
+                children.append(
+                    ParentNode("pre", [LeafNode("code", block)])
+                )  # todo: code path doesn't strip delimiters
+            case BlockType.PARAGRAPH:
+                children.append(process_paragraph(block))
+            case BlockType.QUOTE:
+                children.append(process_quote(block))
