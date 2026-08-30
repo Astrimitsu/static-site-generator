@@ -51,11 +51,24 @@ def process_paragraph(block: str) -> ParentNode:
     return ParentNode("p", [text_node_to_html_node(node) for node in nodes])
 
 
-def process_quote(block: str) -> ParentNode:
+def process_quote_unordered(block: str, md_syntax: str) -> ParentNode:
     nodes = text_to_textnodes(
-        " ".join([line.replace(">", "", 1).lstrip() for line in block.split("\n")])
+        " ".join(
+            [line.replace(md_syntax, "", 1).lstrip() for line in block.split("\n")]
+        )
     )
     return ParentNode("blockquote", [text_node_to_html_node(node) for node in nodes])
+
+def process_code(block:str) -> ParentNode:
+    node = LeafNode("code", "\n".join(block.split("\n")[1:-1])+"\n")
+    return ParentNode("pre", [node])
+
+def process_ordered_list(block: str) -> ParentNode:
+    nodes = [
+        text_to_textnodes(line.replace(f"{i}. ", ""))
+        for i, line in enumerate(block.split("\n"), 1)
+    ]
+    return ParentNode("ol", [text_node_to_html_node(line)])
 
 
 def markdown_to_html_node(markdown: str) -> ParentNode:
@@ -74,10 +87,12 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
         block_type = block_to_block_type(block)
         match block_type:
             case BlockType.CODE:
-                children.append(
-                    ParentNode("pre", [LeafNode("code", block)])
-                )  # todo: code path doesn't strip delimiters
+                children.append(ParentNode("pre", [LeafNode("code", block)]))
             case BlockType.PARAGRAPH:
                 children.append(process_paragraph(block))
             case BlockType.QUOTE:
-                children.append(process_quote(block))
+                children.append(process_quote_unordered(block, ">"))
+            case BlockType.UNORDERED_LIST:
+                children.append(process_quote_unordered(block, "- "))
+            case BlockType.ORDERED_LIST:
+                children.append(process_ordered_list(block))
