@@ -245,7 +245,7 @@ class TestSplitNodeLinks(TestSplitNodeImagesLinksTestItems):
 
 class TestTextToTextNode(unittest.TestCase):
     def setUp(self) -> None:
-        self.text1 = "__bold__ plain *italic* `code` ![img](http://foxpetters.org) uheeee~ [link](http://atsuiyo.com)"
+        self.text1 = "**bold** plain _italic_ `code` ![img](http://foxpetters.org) uheeee~ [link](http://atsuiyo.com)"
 
     def test_text_to_textnode(self):
         self.assertListEqual(
