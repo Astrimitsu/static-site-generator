@@ -77,7 +77,7 @@ def process_quote(block: str) -> ParentNode:
 
 
 def process_code(block: str) -> ParentNode:
-    node = LeafNode("code", "\n".join(block.split("\n")[1:-1]) + "\n")
+    node = LeafNode("code", block[4:-3])
     return ParentNode("pre", [node])
 
 
