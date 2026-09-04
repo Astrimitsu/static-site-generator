@@ -32,7 +32,7 @@ class TestTextNode(unittest.TestCase):
         )
         self.assertEqual(
             text_node_to_html_node(self.textnode_image),
-            LeafNode("img", None, {"src": "fox.jpg", "alt": "Fox"}),
+            LeafNode("img", "", {"src": "fox.jpg", "alt": "Fox"}),
         )
         self.assertEqual(
             text_node_to_html_node(self.textnode_link),

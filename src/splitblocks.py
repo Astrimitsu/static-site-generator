@@ -124,5 +124,7 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
             case BlockType.ORDERED_LIST:
                 children.append(process_ordered_list(block))
             case _:
-                raise ValueError(f"Invalid BlockType: {block_type} (Something very bad happened if you see this.)")
+                raise ValueError(
+                    f"Invalid BlockType: {block_type} (Something very bad happened if you see this.)"
+                )
     return ParentNode("div", children)
