@@ -8,12 +8,12 @@ from splitblocks import markdown_to_html_node
 
 class WebsiteGenerator:
     def __init__(
-        self, source: Path, destination: Path, template: Path, base_path: Path | None
+        self, source: Path, destination: Path, template: Path, base_path: str | None
     ) -> None:
         self.source: Path = source
         self.destination: Path = destination
         self.template: Path = template
-        self.base_path: Path | None = base_path
+        self.base_path: str | None = base_path
 
     def _scan_source(self, directory: Path = Path(".")):
         for file in (self.source / directory).iterdir():
@@ -42,7 +42,7 @@ class WebsiteGenerator:
             "{{ Content }}", markdown_to_html_node(markdown).to_html()
         )
         if self.base_path:
-            finished_html = html
+            finished_html = self.replace_base_path(html)
         else:
             finished_html = html
 
@@ -55,8 +55,8 @@ class WebsiteGenerator:
         self._scan_source()
 
     def replace_base_path(self, html: str) -> str:
-        replaced_images = html.replace('href="/', f'href="{self.base_path}')
-        replaced_links = replaced_images.replace('src="/', f'src="{self.base_path}')
+        replaced_images = html.replace('href="/', f'href="{self.base_path!s}')
+        replaced_links = replaced_images.replace('src="/', f'src="{self.base_path!s}')
         return replaced_links
 
 
@@ -85,7 +85,7 @@ def main() -> None:
                 if arg_value.startswith("--"):
                     print("Usage: main.py [--basepath <site root>] [--build]")
                     sys.exit(64)
-                base_path = Path(arg_value)
+                base_path = arg_value
             except StopIteration:
                 print("Missing argument: No path after --basepath")
                 print("Usage: main.py [--basepath <site root>] [--build]")
