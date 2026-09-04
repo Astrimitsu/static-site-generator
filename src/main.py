@@ -42,7 +42,7 @@ class WebsiteGenerator:
             "{{ Content }}", markdown_to_html_node(markdown).to_html()
         )
         if self.base_path:
-            finished_html = self.replace_base_path(html)
+            finished_html = html
         else:
             finished_html = html
 
