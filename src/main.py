@@ -55,8 +55,8 @@ class WebsiteGenerator:
         self._scan_source()
 
     def replace_base_path(self, html: str) -> str:
-        replaced_images = html.replace('href="/', f'href="{self.base_path}/')
-        replaced_links = replaced_images.replace('src="/', f'src="{self.base_path}/')
+        replaced_images = html.replace('href="/', f'href="{self.base_path}')
+        replaced_links = replaced_images.replace('src="/', f'src="{self.base_path}')
         return replaced_links
 
 
