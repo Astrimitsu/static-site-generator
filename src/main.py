@@ -8,12 +8,12 @@ from splitblocks import markdown_to_html_node
 
 class WebsiteGenerator:
     def __init__(
-        self, source: Path, destination: Path, template: Path, base_path: str | None
+        self, source: Path, destination: Path, template: Path, base_path: str
     ) -> None:
         self.source: Path = source
         self.destination: Path = destination
         self.template: Path = template
-        self.base_path: str | None = base_path
+        self.base_path: str = base_path
 
     def _scan_source(self, directory: Path = Path(".")):
         for file in (self.source / directory).iterdir():
@@ -32,32 +32,25 @@ class WebsiteGenerator:
                 print(f"Copied File: {self.destination / rel_dir!s}")
 
     def _generate_page(self, source: Path, destination: Path) -> None:
-        with open(source) as f:
-            markdown = f.read()
-        with open(self.template) as f:
-            template_html = f.read()
+        markdown = source.read_text()
+        template_html = self.template.read_text()
 
         titled = template_html.replace("{{ Title }}", extract_title(markdown))
         html = titled.replace(
             "{{ Content }}", markdown_to_html_node(markdown).to_html()
         )
-        if self.base_path:
-            finished_html = self.replace_base_path(html)
-        else:
-            finished_html = html
+        finished_html = self.replace_base_path(html)
 
         destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.with_suffix(".html").write_text(finished_html)
 
-        with open(destination.with_suffix(".html"), mode="w") as f:
-            f.write(finished_html)
-
-    def run(self):
+    def run(self) -> None:
         self._scan_source()
 
     def replace_base_path(self, html: str) -> str:
-        replaced_images = html.replace('href="/', f'href="{self.base_path!s}')
-        replaced_links = replaced_images.replace('src="/', f'src="{self.base_path!s}')
-        return replaced_links
+        replaced_links = html.replace('href="/', f'href="{self.base_path!s}')
+        replaced_images = replaced_links.replace('src="/', f'src="{self.base_path!s}')
+        return replaced_images
 
 
 def extract_title(markdown: str) -> str:
@@ -70,7 +63,7 @@ def extract_title(markdown: str) -> str:
 def main() -> None:
 
     build = False
-    base_path = None
+    base_path = "/"
     static_dir = Path("static")
     content_dir = Path("content")
     template = Path("template.html")
